@@ -1,5 +1,4 @@
-# Copyright (c) 2026 Yao0124
-# SPDX-License-Identifier: MIT
+#by Yao0124
 import socket
 import concurrent.futures
 import sys
@@ -25,6 +24,25 @@ parser.add_argument('-p1','--ports1',dest='ports1',type=int,help='起始端口�
 parser.add_argument('-p2','--ports2',dest='ports2',type=int,help='结束端口（如果要扫描1-1000端口，这里就写1000）：')
 parser.add_argument('-w','--work',dest='work',type=int,default=5,help='线程数 默认5')
 
+PORT_DICT = {
+    20: "FTP-Data", 21: "FTP", 22: "SSH", 23: "Telnet", 25: "SMTP",
+    53: "DNS", 67: "DHCP-Server", 68: "DHCP-Client", 69: "TFTP", 110: "POP3",
+    111: "RPCBind", 123: "NTP", 135: "MSRPC", 137: "NetBIOS-NS", 138: "NetBIOS-DGM",
+    139: "NetBIOS-SSN", 143: "IMAP", 161: "SNMP", 162: "SNMP-Trap", 389: "LDAP",
+    465: "SMTPS", 500: "ISAKMP", 514: "Syslog", 587: "SMTP-Submission", 636: "LDAPS",
+    873: "Rsync", 993: "IMAPS", 995: "POP3S", 1080: "SOCKS",
+    80: "HTTP", 443: "HTTPS", 3000: "Grafana", 3128: "Squid-Proxy", 7001: "WebLogic",
+    7002: "WebLogic-SSL", 8000: "HTTP-Alt", 8009: "AJP", 8080: "HTTP-Proxy", 8081: "HTTP-Alt",
+    8443: "HTTPS-Alt", 8888: "Jupyter", 9000: "PHP-FPM", 9090: "Prometheus",
+    1433: "MSSQL", 1521: "Oracle", 3306: "MySQL", 5432: "PostgreSQL", 5900: "VNC",
+    5984: "CouchDB", 6379: "Redis", 9042: "Cassandra", 11211: "Memcached",
+    27017: "MongoDB", 27018: "MongoDB-Shard",
+    445: "SMB", 3389: "RDP",
+    2181: "ZooKeeper", 2375: "Docker", 2376: "Docker-TLS", 4369: "Erlang-EPMD", 5601: "Kibana",
+    5672: "RabbitMQ", 6443: "Kubernetes-API", 9092: "Kafka", 9200: "Elasticsearch",
+    9300: "Elasticsearch-Cluster", 9418: "Git", 15672: "RabbitMQ-Management", 50070: "Hadoop-NameNode",
+    1723: "PPTP", 2049: "NFS", 50000: "SAP",
+}
 def main():
     args = parser.parse_args()
     targetIP = args.IPadders
@@ -54,15 +72,19 @@ def futu(targetIP,targetPorts1,targetPorts2,work):
         for future in concurrent.futures.as_completed(futureList):
             result = future.result()
 
+def server_port_dict(port):
+    return PORT_DICT.get(port,'Unknown')
+
 def start(targetIP,targetPort):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.settimeout(2)
     try:
         send = sock.connect((targetIP,targetPort))
-        print(f'开放的端口:',targetPort)
-    except socket.timeout:
+        print(f'开放的端口:{targetPort} {server_port_dict(targetPort)}')
+    except Exception:
         pass
-    sock.close()
+    finally:
+        sock.close()
 
 if __name__ == '__main__':
     try:
